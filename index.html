@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🐱 摸鱼工具箱</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:system-ui,-apple-system,"PingFang SC",sans-serif; background:#0f1117; color:#e8eaf0;
+         min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:16px; }
+  h1 { font-size:20px; margin:8px 0 12px; letter-spacing:1px; }
+  h1 .cat { color:#ffb86c; }
+  .tabs { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; justify-content:center; }
+  .tab { padding:8px 16px; border-radius:20px; background:#1b1f2a; color:#9aa3b5; border:1px solid #2a3040;
+         cursor:pointer; font-size:14px; transition:all .15s; }
+  .tab.active { background:#ffb86c; color:#1a1206; border-color:#ffb86c; font-weight:600; }
+  .panel { display:none; width:100%; max-width:420px; background:#161a24; border-radius:16px; padding:18px;
+           border:1px solid #242b3a; box-shadow:0 8px 30px rgba(0,0,0,.35); }
+  .panel.active { display:block; animation:fade .2s ease; }
+  @keyframes fade { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+  .quote-box { text-align:center; padding:28px 12px; }
+  #quote { font-size:17px; line-height:1.8; min-height:120px; display:flex; align-items:center; justify-content:center; color:#f0e6d2; }
+  .btn { background:#ffb86c; color:#1a1206; border:none; border-radius:24px; padding:10px 22px; font-size:15px;
+         font-weight:600; cursor:pointer; margin-top:14px; }
+  .btn.secondary { background:#2a3040; color:#cfd6e4; }
+  .btn:active { transform:scale(.97); }
+  .timer-wrap { text-align:center; padding:10px 0; }
+  #timer { font-size:64px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:2px; margin:14px 0; }
+  #timer.work { color:#ffb86c; } #timer.rest { color:#6ee7a0; }
+  .mode-tag { font-size:14px; color:#9aa3b5; margin-bottom:6px; }
+  .timer-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .board { margin:0 auto; width:min(100%, 340px); aspect-ratio:1; background:#1b1f2a; border-radius:12px;
+           padding:8px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; touch-action:none; }
+  .cell { background:#232a3a; border-radius:8px; display:flex; align-items:center; justify-content:center;
+          font-size:26px; font-weight:700; color:#e8eaf0; transition:background .1s; }
+  .cell.v2{background:#3a4058} .cell.v4{background:#4a4a66;color:#fff}
+  .cell.v8{background:#a3642a} .cell.v16{background:#c9641f;color:#fff}
+  .cell.v32{background:#d94a3a;color:#fff} .cell.v64{background:#e03e2f;color:#fff}
+  .cell.v128{background:#f0c420;color:#3a2f08} .cell.v256{background:#43c8e8;color:#08303c}
+  .cell.v512{background:#2aa7d8;color:#fff} .cell.v1024{background:#8a5fd8;color:#fff}
+  .cell.v2048{background:#d8a35f;color:#3a2f08;animation:pop .2s}
+  @keyframes pop { 50%{transform:scale(1.12)} }
+  .game-meta { display:flex; justify-content:space-between; align-items:center; margin:10px 0; }
+  .score { font-size:16px; color:#ffb86c; font-weight:600; }
+  .hint { font-size:12px; color:#6a7385; margin-top:10px; text-align:center; }
+  #boss { display:none; position:fixed; inset:0; background:#f5f6f8; color:#333; z-index:99; padding:30px;
+          font-family:"Times New Roman",serif; overflow:auto; }
+  #boss h2 { font-size:20px; margin-bottom:16px; border-bottom:2px solid #999; padding-bottom:8px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { border:1px solid #aaa; padding:6px 8px; text-align:left; }
+  .boss-hint { position:absolute; bottom:12px; right:16px; font-size:11px; color:#999; font-family:system-ui,sans-serif; }
+  .toast { position:fixed; top:18px; left:50%; transform:translateX(-50%); background:#2a3040; color:#fff;
+           padding:10px 18px; border-radius:20px; font-size:14px; z-index:100; opacity:0; transition:opacity .3s;
+           pointer-events:none; }
+  .toast.show { opacity:1; }
+</style>
+</head>
+<body>
+<h1><span class="cat">🐱</span> 摸鱼工具箱 <span class="cat">v1.0</span></h1>
+<div class="tabs">
+  <div class="tab active" data-p="quote">语录</div>
+  <div class="tab" data-p="timer">番茄钟</div>
+  <div class="tab" data-p="game">2048</div>
+</div>
+
+<div class="panel active" id="p-quote">
+  <div class="quote-box"><div id="quote">…</div></div>
+  <div style="text-align:center">
+    <button class="btn" onclick="newQuote()">换一条</button>
+    <button class="btn secondary" onclick="bossMode()">老板来了！(Esc)</button>
+  </div>
+</div>
+
+<div class="panel" id="p-timer">
+  <div class="timer-wrap">
+    <div class="mode-tag" id="mode-tag">🍅 专注中 · 25:00</div>
+    <div id="timer" class="work">25:00</div>
+    <div class="timer-btns">
+      <button class="btn" id="tgl" onclick="toggleTimer()">开始</button>
+      <button class="btn secondary" onclick="resetTimer()">重置</button>
+      <button class="btn secondary" onclick="bossMode()">老板来了！(Esc)</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="p-game">
+  <div class="game-meta">
+    <div class="score">分数 <span id="gscore">0</span></div>
+    <div><button class="btn secondary" style="padding:6px 14px;margin:0" onclick="g2048.newGame()">重开</button></div>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="hint">键盘 WASD / 方向键 · 手机直接滑动 · 滑到 2048 达成！</div>
+</div>
+
+<!-- 老板键伪装页 -->
+<div id="boss">
+  <h2>2026 年度第三季度 工作汇报（草稿）</h2>
+  <table>
+    <tr><th>项目</th><th>负责人</th><th>进度</th><th>备注</th></tr>
+    <tr><td>数据同步模块</td><td>张伟</td><td>85%</td><td>联调中</td></tr>
+    <tr><td>报表导出功能</td><td>李娜</td><td>62%</td><td>待评审</td></tr>
+    <tr><td>接口文档梳理</td><td>王强</td><td>100%</td><td>已完成</td></tr>
+    <tr><td>性能优化专项</td><td>刘敏</td><td>40%</td><td>进行中</td></tr>
+  </table>
+  <div class="boss-hint">按 Esc 返回摸鱼 · 主人，我在认真工作喵！</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 标签页切换 =====
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('p-'+tab.dataset.p).classList.add('active');
+  });
+});
+
+// ===== 语录 =====
+const QUOTES = [
+  "努力不一定成功，但不努力一定很轻松。",
+  "上班的心情，比上坟还沉重，但工资让我坚强。",
+  "今天不加班，明天更快乐。",
+  "所谓打工，就是拿我的时间换老板的梦想。",
+  "摸鱼一时爽，一直摸鱼一直爽。",
+  "工作使我快乐，摸鱼使我更快乐。",
+  "咖啡续命，摸鱼养心。",
+  "我的工位虽小，但我的心很大——大到能装下整个互联网。",
+  "上班是生存，摸鱼是生活。",
+  "老板画的饼，我一口都没吃到，但我学会了画自己的饼。",
+  "世界上只有一种成功：用自己喜欢的方式摸鱼。",
+  "效率是挤出来的，鱼是摸出来的。",
+  "别和我谈理想，我的理想是不上班。",
+  "摸鱼不是偷懒，是给大脑留白，是战略性休整。",
+  "猫摸鱼，天经地义；人摸鱼，情有可原。",
+  "如果摸鱼有段位，我已经是王者了。",
+  "打工人的快乐很简单：工资到账 + 准时下班。",
+  "老板不在，鱼塘自由。",
+];
+let lastIdx = -1;
+function newQuote(){
+  let i; do { i = Math.floor(Math.random()*QUOTES.length); } while(i===lastIdx);
+  lastIdx = i;
+  document.getElementById('quote').textContent = QUOTES[i];
+}
+
+// ===== 老板键 =====
+function bossMode(){
+  const boss = document.getElementById('boss');
+  boss.style.display = boss.style.display === 'block' ? 'none' : 'block';
+  toast(boss.style.display === 'block' ? '已切换工作模式，摸鱼内容已隐藏' : '安全了，继续摸鱼');
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') bossMode(); });
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 1500);
+}
+
+// ===== 番茄钟 =====
+const POMODORO = { work: 25*60, rest: 5*60 };
+let remain = POMODORO.work, mode = 'work', timerId = null;
+function fmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function renderTimer(){
+  const el = document.getElementById('timer');
+  el.textContent = fmt(remain);
+  el.className = mode;
+  document.getElementById('mode-tag').textContent =
+    mode==='work' ? '🍅 专注中 · ' + fmt(remain) : '☕ 休息中 · ' + fmt(remain);
+}
+function tick(){
+  if(remain <= 0){
+    if(mode==='work'){ mode='rest'; remain=POMODORO.rest; toast('🍅 专注结束！休息 5 分钟'); }
+    else { mode='work'; remain=POMODORO.work; toast('☕ 休息结束！开始下一轮专注'); }
+    renderTimer();
+    try{ Notification && Notification.requestPermission && Notification.requestPermission(); }catch(e){}
+    return;
+  }
+  remain--; renderTimer();
+}
+function toggleTimer(){
+  const b = document.getElementById('tgl');
+  if(timerId){ clearInterval(timerId); timerId=null; b.textContent='继续'; }
+  else { timerId = setInterval(tick, 1000); b.textContent='暂停'; }
+}
+function resetTimer(){ clearInterval(timerId); timerId=null; remain=POMODORO.work; mode='work';
+  document.getElementById('tgl').textContent='开始'; renderTimer(); }
+
+// ===== 2048 =====
+const g2048 = (()=>{
+  const N=4; let grid=[], score=0, over=false;
+  const board = document.getElementById('board');
+  function newGame(){ grid=Array.from({length:N},()=>Array(N).fill(0)); score=0; over=false; spawn(); spawn(); render(); }
+  function spawn(){
+    const empty=[];
+    for(let r=0;r<N;r++)for(let c=0;c<N;c++) if(!grid[r][c]) empty.push([r,c]);
+    if(!empty.length) return;
+    const [r,c]=empty[Math.floor(Math.random()*empty.length)];
+    grid[r][c]=Math.random()<0.9?2:4;
+  }
+  function slide(row){
+    let v=row.filter(x=>x), out=[], gain=0;
+    for(let i=0;i<v.length;i++){
+      if(i+1<v.length && v[i]===v[i+1]){ out.push(v[i]*2); gain+=v[i]*2; i++; }
+      else out.push(v[i]);
+    }
+    while(out.length<N) out.push(0);
+    return [out, gain];
+  }
+  function move(dir){
+    if(over) return;
+    let rows, moved=false, total=0;
+    const back = (rs)=>{
+      if(dir==='left') return rs;
+      if(dir==='right') return rs.map(r=>r.slice().reverse());
+      if(dir==='up') return rs[0].map((_,c)=>rs.map(r=>r[c]));
+      return rs[0].map((_,c)=>rs.slice().reverse().map(r=>r[c]));
+    };
+    if(dir==='left') rows=grid.map(r=>r.slice());
+    if(dir==='right') rows=grid.map(r=>r.slice().reverse());
+    if(dir==='up') rows=grid[0].map((_,c)=>grid.map(r=>r[c]));
+    if(dir==='down') rows=grid[0].map((_,c)=>grid.slice().reverse().map(r=>r[c]));
+    const next=[];
+    for(const row of rows){ const [sl,g]=slide(row); next.push(sl); total+=g; if(sl.join()!==row.join()) moved=true; }
+    if(moved){ grid=back(next); score+=total; spawn(); }
+    if(isDead()){ over=true; toast('游戏结束！分数 '+score+'，按重开再来'); }
+    render();
+  }
+  function isDead(){
+    for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+      if(!grid[r][c]) return false;
+      if(r+1<N&&grid[r][c]===grid[r+1][c]) return false;
+      if(c+1<N&&grid[r][c]===grid[r][c+1]) return false;
+    }
+    return true;
+  }
+  function render(){
+    document.getElementById('gscore').textContent = score;
+    board.innerHTML='';
+    for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+      const d=document.createElement('div');
+      d.className='cell'+(grid[r][c]?' v'+grid[r][c]:'');
+      d.textContent=grid[r][c]||'';
+      board.appendChild(d);
+    }
+  }
+  // 键盘
+  document.addEventListener('keydown', e=>{
+    const k={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',
+             w:'up',a:'left',s:'down',d:'right'}[e.key.toLowerCase()];
+    if(k){ e.preventDefault(); move(k); }
+  });
+  // 触屏滑动
+  let sx=0, sy=0;
+  board.addEventListener('touchstart', e=>{ const t=e.touches[0]; sx=t.clientX; sy=t.clientY; }, {passive:true});
+  board.addEventListener('touchend', e=>{
+    const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+    if(Math.abs(dx)<20 && Math.abs(dy)<20) return;
+    if(Math.abs(dx)>Math.abs(dy)) move(dx>0?'right':'left');
+    else move(dy>0?'down':'up');
+  }, {passive:true});
+  newGame();
+  return { newGame };
+})();
+
+// init
+newQuote();
+renderTimer();
+</script>
+</body>
+</html>

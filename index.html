@@ -3,272 +3,641 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>🐱 摸鱼工具箱</title>
+<title>🐟 摸鱼工具箱</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { font-family:system-ui,-apple-system,"PingFang SC",sans-serif; background:#0f1117; color:#e8eaf0;
-         min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:16px; }
-  h1 { font-size:20px; margin:8px 0 12px; letter-spacing:1px; }
-  h1 .cat { color:#ffb86c; }
-  .tabs { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; justify-content:center; }
-  .tab { padding:8px 16px; border-radius:20px; background:#1b1f2a; color:#9aa3b5; border:1px solid #2a3040;
-         cursor:pointer; font-size:14px; transition:all .15s; }
-  .tab.active { background:#ffb86c; color:#1a1206; border-color:#ffb86c; font-weight:600; }
-  .panel { display:none; width:100%; max-width:420px; background:#161a24; border-radius:16px; padding:18px;
-           border:1px solid #242b3a; box-shadow:0 8px 30px rgba(0,0,0,.35); }
-  .panel.active { display:block; animation:fade .2s ease; }
-  @keyframes fade { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
-  .quote-box { text-align:center; padding:28px 12px; }
-  #quote { font-size:17px; line-height:1.8; min-height:120px; display:flex; align-items:center; justify-content:center; color:#f0e6d2; }
-  .btn { background:#ffb86c; color:#1a1206; border:none; border-radius:24px; padding:10px 22px; font-size:15px;
-         font-weight:600; cursor:pointer; margin-top:14px; }
-  .btn.secondary { background:#2a3040; color:#cfd6e4; }
-  .btn:active { transform:scale(.97); }
-  .timer-wrap { text-align:center; padding:10px 0; }
-  #timer { font-size:64px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:2px; margin:14px 0; }
-  #timer.work { color:#ffb86c; } #timer.rest { color:#6ee7a0; }
-  .mode-tag { font-size:14px; color:#9aa3b5; margin-bottom:6px; }
-  .timer-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-  .board { margin:0 auto; width:min(100%, 340px); aspect-ratio:1; background:#1b1f2a; border-radius:12px;
-           padding:8px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; touch-action:none; }
-  .cell { background:#232a3a; border-radius:8px; display:flex; align-items:center; justify-content:center;
-          font-size:26px; font-weight:700; color:#e8eaf0; transition:background .1s; }
-  .cell.v2{background:#3a4058} .cell.v4{background:#4a4a66;color:#fff}
-  .cell.v8{background:#a3642a} .cell.v16{background:#c9641f;color:#fff}
-  .cell.v32{background:#d94a3a;color:#fff} .cell.v64{background:#e03e2f;color:#fff}
-  .cell.v128{background:#f0c420;color:#3a2f08} .cell.v256{background:#43c8e8;color:#08303c}
-  .cell.v512{background:#2aa7d8;color:#fff} .cell.v1024{background:#8a5fd8;color:#fff}
-  .cell.v2048{background:#d8a35f;color:#3a2f08;animation:pop .2s}
-  @keyframes pop { 50%{transform:scale(1.12)} }
-  .game-meta { display:flex; justify-content:space-between; align-items:center; margin:10px 0; }
-  .score { font-size:16px; color:#ffb86c; font-weight:600; }
-  .hint { font-size:12px; color:#6a7385; margin-top:10px; text-align:center; }
-  #boss { display:none; position:fixed; inset:0; background:#f5f6f8; color:#333; z-index:99; padding:30px;
-          font-family:"Times New Roman",serif; overflow:auto; }
-  #boss h2 { font-size:20px; margin-bottom:16px; border-bottom:2px solid #999; padding-bottom:8px; }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  th,td { border:1px solid #aaa; padding:6px 8px; text-align:left; }
-  .boss-hint { position:absolute; bottom:12px; right:16px; font-size:11px; color:#999; font-family:system-ui,sans-serif; }
-  .toast { position:fixed; top:18px; left:50%; transform:translateX(-50%); background:#2a3040; color:#fff;
-           padding:10px 18px; border-radius:20px; font-size:14px; z-index:100; opacity:0; transition:opacity .3s;
-           pointer-events:none; }
-  .toast.show { opacity:1; }
+  :root {
+    --bg: #0f1220;
+    --card: #1a1e33;
+    --card2: #232844;
+    --text: #e8eaf6;
+    --dim: #9aa0b8;
+    --accent: #ff9800;
+    --green: #4caf50;
+    --red: #f44336;
+    --blue: #42a5f5;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    min-height: 100vh;
+    padding-bottom: 30px;
+  }
+  .tabs {
+    display: flex;
+    background: var(--card);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 10px rgba(0,0,0,.4);
+  }
+  .tab {
+    flex: 1;
+    padding: 14px 0;
+    text-align: center;
+    font-size: 15px;
+    color: var(--dim);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all .2s;
+    user-select: none;
+  }
+  .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+    background: var(--card2);
+  }
+  .panel { display: none; padding: 20px 16px; }
+  .panel.active { display: block; animation: fade .25s; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none;} }
+  .title { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: var(--dim); font-size: 13px; margin-bottom: 18px; }
+
+  /* ===== 番茄钟 ===== */
+  .ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0 20px;
+  }
+  .ring {
+    position: relative;
+    width: 240px;
+    height: 240px;
+  }
+  .ring svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--card2); stroke-width: 12; }
+  .ring-fg {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 12;
+    stroke-linecap: round;
+    transition: stroke-dashoffset .3s, stroke .3s;
+  }
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .time-display { font-size: 52px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .state-label { font-size: 14px; color: var(--dim); margin-top: 2px; }
+  .tomato-count { margin-top: 6px; font-size: 13px; color: var(--accent); }
+  .controls { display: flex; justify-content: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .btn {
+    border: none;
+    padding: 12px 26px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: transform .1s, opacity .2s;
+    background: var(--card2);
+  }
+  .btn:active { transform: scale(.95); }
+  .btn-primary { background: var(--accent); }
+  .btn-green { background: var(--green); }
+  .btn-red { background: var(--red); }
+  .btn-blue { background: var(--blue); }
+  .btn[disabled] { opacity: .4; pointer-events: none; }
+  .settings {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    background: var(--card);
+    padding: 14px;
+    border-radius: 14px;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .setting-item { text-align: center; }
+  .setting-item label { display: block; font-size: 12px; color: var(--dim); margin-bottom: 6px; }
+  .setting-item input {
+    width: 72px;
+    background: var(--card2);
+    border: 1px solid #333a5e;
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 15px;
+  }
+
+  /* ===== 2048 ===== */
+  .score-board {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .score-box {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 8px 20px;
+    text-align: center;
+    min-width: 100px;
+  }
+  .score-box .lbl { font-size: 12px; color: var(--dim); }
+  .score-box .val { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .board-wrap { display: flex; justify-content: center; }
+  #board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    background: #bbada0;
+    background: var(--card2);
+    padding: 10px;
+    border-radius: 12px;
+    width: min(92vw, 380px);
+    aspect-ratio: 1;
+    touch-action: none;
+  }
+  .cell {
+    background: rgba(255,255,255,.05);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 800;
+    color: #fff;
+    transition: transform .1s;
+  }
+  .cell-2   { background: #eee4da; color: #776e65; }
+  .cell-4   { background: #ede0c8; color: #776e65; }
+  .cell-8   { background: #f2b179; }
+  .cell-16  { background: #f59563; }
+  .cell-32  { background: #f67c5f; }
+  .cell-64  { background: #f65e3b; }
+  .cell-128 { background: #edcf72; }
+  .cell-256 { background: #edcc61; }
+  .cell-512 { background: #edc850; }
+  .cell-1024{ background: #edc53f; }
+  .cell-2048{ background: #edc22e; }
+  .cell-4096,.cell-8192 { background: #3c3a32; }
+  .cell-empty { background: rgba(255,255,255,.05); }
+  .game-over-msg {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: rgba(15,18,32,.75);
+    border-radius: 12px;
+    font-size: 26px;
+    font-weight: 800;
+    z-index: 5;
+  }
+  .game-over-msg .again { margin-top: 12px; font-size: 15px; }
+
+  /* ===== 语录 ===== */
+  .quote-box {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 30px 24px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  .quote-text { font-size: 19px; line-height: 1.8; }
+  .quote-refresh { margin-top: 20px; text-align: center; }
+
+  /* ===== 摸鱼指南 ===== */
+  .tips { max-width: 520px; margin: 0 auto; }
+  .tip-item {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--accent);
+  }
+  .tip-item h3 { font-size: 15px; margin-bottom: 4px; }
+  .tip-item p { font-size: 13px; color: var(--dim); line-height: 1.6; }
+
+  .toast {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #2e3557;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3s;
+    z-index: 99;
+    box-shadow: 0 4px 14px rgba(0,0,0,.4);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .board-wrap { position: relative; }
 </style>
 </head>
 <body>
-<h1><span class="cat">🐱</span> 摸鱼工具箱 <span class="cat">v1.0</span></h1>
+
 <div class="tabs">
-  <div class="tab active" data-p="quote">语录</div>
-  <div class="tab" data-p="timer">番茄钟</div>
-  <div class="tab" data-p="game">2048</div>
+  <div class="tab active" data-p="timer">🍅 番茄钟</div>
+  <div class="tab" data-p="game">🎮 2048</div>
+  <div class="tab" data-p="quote">💬 语录</div>
+  <div class="tab" data-p="tips">🐟 摸鱼指南</div>
 </div>
 
-<div class="panel active" id="p-quote">
-  <div class="quote-box"><div id="quote">…</div></div>
-  <div style="text-align:center">
-    <button class="btn" onclick="newQuote()">换一条</button>
-    <button class="btn secondary" onclick="bossMode()">老板来了！(Esc)</button>
+<!-- ============ 番茄钟 ============ -->
+<div class="panel active" id="p-timer">
+  <div class="title">🍅 番茄钟</div>
+  <div class="subtitle">专注 25 分钟 · 休息 5 分钟 · 循环种番茄</div>
+  <div class="ring-wrap">
+    <div class="ring">
+      <svg width="240" height="240">
+        <circle class="ring-bg" cx="120" cy="120" r="104"></circle>
+        <circle class="ring-fg" id="ringFg" cx="120" cy="120" r="104"
+                stroke-dasharray="653.45" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="time-display" id="timeDisplay">25:00</div>
+        <div class="state-label" id="stateLabel">专注中 · 准备开始</div>
+        <div class="tomato-count" id="tomatoCount">🍅 今日番茄 × 0</div>
+      </div>
+    </div>
   </div>
-</div>
-
-<div class="panel" id="p-timer">
-  <div class="timer-wrap">
-    <div class="mode-tag" id="mode-tag">🍅 专注中 · 25:00</div>
-    <div id="timer" class="work">25:00</div>
-    <div class="timer-btns">
-      <button class="btn" id="tgl" onclick="toggleTimer()">开始</button>
-      <button class="btn secondary" onclick="resetTimer()">重置</button>
-      <button class="btn secondary" onclick="bossMode()">老板来了！(Esc)</button>
+  <div class="controls">
+    <button class="btn btn-primary" id="btnStart">▶ 开始</button>
+    <button class="btn" id="btnPause" disabled>⏸ 暂停</button>
+    <button class="btn btn-red" id="btnReset">↺ 重置</button>
+  </div>
+  <div class="settings">
+    <div class="setting-item">
+      <label>专注(分钟)</label>
+      <input type="number" id="setWork" min="1" max="120" value="25">
+    </div>
+    <div class="setting-item">
+      <label>休息(分钟)</label>
+      <input type="number" id="setBreak" min="1" max="60" value="5">
     </div>
   </div>
 </div>
 
+<!-- ============ 2048 ============ -->
 <div class="panel" id="p-game">
-  <div class="game-meta">
-    <div class="score">分数 <span id="gscore">0</span></div>
-    <div><button class="btn secondary" style="padding:6px 14px;margin:0" onclick="g2048.newGame()">重开</button></div>
+  <div class="title">🎮 2048</div>
+  <div class="subtitle">方向键 / 滑动屏幕，合并数字冲 2048</div>
+  <div class="score-board">
+    <div class="score-box"><div class="lbl">分数</div><div class="val" id="score2048">0</div></div>
+    <div class="score-box"><div class="lbl">最高</div><div class="val" id="best2048">0</div></div>
   </div>
-  <div class="board" id="board"></div>
-  <div class="hint">键盘 WASD / 方向键 · 手机直接滑动 · 滑到 2048 达成！</div>
+  <div class="board-wrap">
+    <div id="board"></div>
+    <div class="game-over-msg" id="gameOverMsg">
+      <div id="gameOverText">游戏结束</div>
+      <div class="again"><button class="btn btn-primary" onclick="init2048()">再来一局</button></div>
+    </div>
+  </div>
 </div>
 
-<!-- 老板键伪装页 -->
-<div id="boss">
-  <h2>2026 年度第三季度 工作汇报（草稿）</h2>
-  <table>
-    <tr><th>项目</th><th>负责人</th><th>进度</th><th>备注</th></tr>
-    <tr><td>数据同步模块</td><td>张伟</td><td>85%</td><td>联调中</td></tr>
-    <tr><td>报表导出功能</td><td>李娜</td><td>62%</td><td>待评审</td></tr>
-    <tr><td>接口文档梳理</td><td>王强</td><td>100%</td><td>已完成</td></tr>
-    <tr><td>性能优化专项</td><td>刘敏</td><td>40%</td><td>进行中</td></tr>
-  </table>
-  <div class="boss-hint">按 Esc 返回摸鱼 · 主人，我在认真工作喵！</div>
+<!-- ============ 语录 ============ -->
+<div class="panel" id="p-quote">
+  <div class="title">💬 摸鱼语录</div>
+  <div class="subtitle">上班不摸鱼，对不起工资</div>
+  <div class="quote-box">
+    <div class="quote-text" id="quoteText"></div>
+    <div class="quote-refresh"><button class="btn btn-blue" onclick="showQuote()">换一条</button></div>
+  </div>
+</div>
+
+<!-- ============ 摸鱼指南 ============ -->
+<div class="panel" id="p-tips">
+  <div class="title">🐟 摸鱼指南</div>
+  <div class="subtitle">科学的摸鱼，才有摸鱼的底气</div>
+  <div class="tips">
+    <div class="tip-item"><h3>① 番茄工作法</h3><p>专注 25 分钟 → 休息 5 分钟，每 4 轮休息 15~30 分钟。把任务切成小段，摸鱼不背锅。</p></div>
+    <div class="tip-item"><h3>② 老板键</h3><p>摸鱼网页请放后台标签页，听到脚步声按 Ctrl+W / 切走。手机党记得开静音。</p></div>
+    <div class="tip-item"><h3>③ 仪式感</h3><p>摸鱼前泡杯茶、深呼吸三次。仪式感越足，摸鱼越心安理得。</p></div>
+    <div class="tip-item"><h3>④ 摸鱼守恒</h3><p>摸鱼的本质是时间再分配：效率高的时段干正事，效率低的时段合理放松。别本末倒置喵。</p></div>
+    <div class="tip-item"><h3>⑤ 免责声明</h3><p>本工具箱仅供合法放松，被老板抓到概不负责喵！(≧▽≦)</p></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 // ===== 标签页切换 =====
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
     tab.classList.add('active');
-    document.getElementById('p-'+tab.dataset.p).classList.add('active');
+    document.getElementById('p-' + tab.dataset.p).classList.add('active');
   });
 });
 
-// ===== 语录 =====
-const QUOTES = [
-  "努力不一定成功，但不努力一定很轻松。",
-  "上班的心情，比上坟还沉重，但工资让我坚强。",
-  "今天不加班，明天更快乐。",
-  "所谓打工，就是拿我的时间换老板的梦想。",
-  "摸鱼一时爽，一直摸鱼一直爽。",
-  "工作使我快乐，摸鱼使我更快乐。",
-  "咖啡续命，摸鱼养心。",
-  "我的工位虽小，但我的心很大——大到能装下整个互联网。",
-  "上班是生存，摸鱼是生活。",
-  "老板画的饼，我一口都没吃到，但我学会了画自己的饼。",
-  "世界上只有一种成功：用自己喜欢的方式摸鱼。",
-  "效率是挤出来的，鱼是摸出来的。",
-  "别和我谈理想，我的理想是不上班。",
-  "摸鱼不是偷懒，是给大脑留白，是战略性休整。",
-  "猫摸鱼，天经地义；人摸鱼，情有可原。",
-  "如果摸鱼有段位，我已经是王者了。",
-  "打工人的快乐很简单：工资到账 + 准时下班。",
-  "老板不在，鱼塘自由。",
-];
-let lastIdx = -1;
-function newQuote(){
-  let i; do { i = Math.floor(Math.random()*QUOTES.length); } while(i===lastIdx);
-  lastIdx = i;
-  document.getElementById('quote').textContent = QUOTES[i];
-}
-
-// ===== 老板键 =====
-function bossMode(){
-  const boss = document.getElementById('boss');
-  boss.style.display = boss.style.display === 'block' ? 'none' : 'block';
-  toast(boss.style.display === 'block' ? '已切换工作模式，摸鱼内容已隐藏' : '安全了，继续摸鱼');
-}
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') bossMode(); });
-
+// ===== 小工具 =====
 function toast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 1500);
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(function(){ t.classList.remove('show'); }, 1800);
 }
 
 // ===== 番茄钟 =====
-const POMODORO = { work: 25*60, rest: 5*60 };
-let remain = POMODORO.work, mode = 'work', timerId = null;
-function fmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
-function renderTimer(){
-  const el = document.getElementById('timer');
-  el.textContent = fmt(remain);
-  el.className = mode;
-  document.getElementById('mode-tag').textContent =
-    mode==='work' ? '🍅 专注中 · ' + fmt(remain) : '☕ 休息中 · ' + fmt(remain);
+var pomo = {
+  mode: 'work',        // work | break
+  running: false,
+  total: 25 * 60,      // 秒
+  left: 25 * 60,
+  workMin: 25,
+  breakMin: 5,
+  doneToday: 0,
+  timer: null
+};
+var RING_C = 2 * Math.PI * 104; // 653.45
+
+function pomoLoad(){
+  try {
+    var s = JSON.parse(localStorage.getItem('miaoyu_pomo') || '{}');
+    if (s.doneToday) pomo.doneToday = s.doneToday;
+    if (s.date === new Date().toDateString()) { /* 同日保留 */ }
+    else { pomo.doneToday = 0; }
+  } catch(e) {}
+  pomo.workMin = parseInt(document.getElementById('setWork').value, 10) || 25;
+  pomo.breakMin = parseInt(document.getElementById('setBreak').value, 10) || 5;
 }
-function tick(){
-  if(remain <= 0){
-    if(mode==='work'){ mode='rest'; remain=POMODORO.rest; toast('🍅 专注结束！休息 5 分钟'); }
-    else { mode='work'; remain=POMODORO.work; toast('☕ 休息结束！开始下一轮专注'); }
-    renderTimer();
-    try{ Notification && Notification.requestPermission && Notification.requestPermission(); }catch(e){}
+function pomoSave(){
+  try {
+    localStorage.setItem('miaoyu_pomo', JSON.stringify({
+      doneToday: pomo.doneToday,
+      date: new Date().toDateString()
+    }));
+  } catch(e) {}
+}
+function pomoSetMode(mode){
+  pomo.mode = mode;
+  pomo.total = (mode === 'work' ? pomo.workMin : pomo.breakMin) * 60;
+  pomo.left = pomo.total;
+  var fg = document.getElementById('ringFg');
+  fg.style.strokeDashoffset = '0';
+  fg.style.stroke = mode === 'work' ? 'var(--accent)' : 'var(--green)';
+  document.getElementById('stateLabel').textContent =
+    mode === 'work' ? '🍅 专注中' : '☕ 休息中';
+  document.title = '🐟 摸鱼工具箱';
+  pomoRender();
+}
+function pomoRender(){
+  var m = Math.floor(pomo.left / 60);
+  var s = pomo.left % 60;
+  document.getElementById('timeDisplay').textContent =
+    (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  var ratio = pomo.total ? pomo.left / pomo.total : 0;
+  document.getElementById('ringFg').style.strokeDashoffset = (RING_C * (1 - ratio)).toFixed(1);
+  document.getElementById('tomatoCount').textContent = '🍅 今日番茄 × ' + pomo.doneToday;
+  if (pomo.left <= 0) pomoTick();
+}
+function pomoTick(){
+  if (!pomo.running) return;
+  if (pomo.left <= 0) {
+    if (pomo.mode === 'work') {
+      pomo.doneToday++;
+      pomoSave();
+      toast('🍅 番茄完成！休息一下喵～');
+      try { notify('🍅 番茄完成', '干得漂亮，休息 5 分钟吧！'); } catch(e) {}
+      pomoSetMode('break');
+    } else {
+      toast('☕ 休息结束，开始下一个番茄！');
+      try { notify('☕ 休息结束', '回来继续干活啦～'); } catch(e) {}
+      pomoSetMode('work');
+    }
     return;
   }
-  remain--; renderTimer();
+  pomo.left--;
+  pomoRender();
 }
-function toggleTimer(){
-  const b = document.getElementById('tgl');
-  if(timerId){ clearInterval(timerId); timerId=null; b.textContent='继续'; }
-  else { timerId = setInterval(tick, 1000); b.textContent='暂停'; }
+function pomoStart(){
+  if (pomo.running) return;
+  pomo.running = true;
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnPause').disabled = false;
+  pomo.timer = setInterval(pomoTick, 1000);
+  pomoRender();
 }
-function resetTimer(){ clearInterval(timerId); timerId=null; remain=POMODORO.work; mode='work';
-  document.getElementById('tgl').textContent='开始'; renderTimer(); }
+function pomoPause(){
+  if (!pomo.running) return;
+  pomo.running = false;
+  clearInterval(pomo.timer);
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnPause').disabled = true;
+  document.getElementById('stateLabel').textContent = '⏸ 已暂停';
+}
+function pomoReset(){
+  pomo.running = false;
+  clearInterval(pomo.timer);
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnPause').disabled = true;
+  pomoSetMode(pomo.mode);
+}
+document.getElementById('btnStart').addEventListener('click', pomoStart);
+document.getElementById('btnPause').addEventListener('click', pomoPause);
+document.getElementById('btnReset').addEventListener('click', pomoReset);
+document.getElementById('setWork').addEventListener('change', function(){
+  pomo.workMin = parseInt(this.value, 10) || 25;
+  if (!pomo.running) pomoSetMode('work');
+});
+document.getElementById('setBreak').addEventListener('change', function(){
+  pomo.breakMin = parseInt(this.value, 10) || 5;
+  if (!pomo.running && pomo.mode === 'break') pomoSetMode('break');
+});
+
+function notify(title, body){
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    new Notification(title, { body: body, icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="55" r="40" fill="%23f44336"/><rect x="46" y="8" width="8" height="22" fill="%234caf50"/><rect x="42" y="6" width="16" height="6" rx="3" fill="%234caf50"/></svg>' });
+  } else if (Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+if ('Notification' in window && Notification.permission === 'default') {
+  // 等用户点击时再请求
+}
 
 // ===== 2048 =====
-const g2048 = (()=>{
-  const N=4; let grid=[], score=0, over=false;
-  const board = document.getElementById('board');
-  function newGame(){ grid=Array.from({length:N},()=>Array(N).fill(0)); score=0; over=false; spawn(); spawn(); render(); }
-  function spawn(){
-    const empty=[];
-    for(let r=0;r<N;r++)for(let c=0;c<N;c++) if(!grid[r][c]) empty.push([r,c]);
-    if(!empty.length) return;
-    const [r,c]=empty[Math.floor(Math.random()*empty.length)];
-    grid[r][c]=Math.random()<0.9?2:4;
+var g = {
+  grid: [],
+  score: 0,
+  best: parseInt(localStorage.getItem('miaoyu_2048_best') || '0', 10),
+  over: false,
+  moved: false
+};
+function empty2048(){
+  return [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+}
+function spawn2048(){
+  var cells = [];
+  for (var r = 0; r < 4; r++)
+    for (var c = 0; c < 4; c++)
+      if (g.grid[r][c] === 0) cells.push([r, c]);
+  if (!cells.length) return;
+  var pick = cells[Math.floor(Math.random() * cells.length)];
+  g.grid[pick[0]][pick[1]] = Math.random() < 0.9 ? 2 : 4;
+}
+function init2048(){
+  g.grid = empty2048();
+  g.score = 0;
+  g.over = false;
+  document.getElementById('gameOverMsg').style.display = 'none';
+  spawn2048(); spawn2048();
+  render2048();
+  updateScores2048();
+}
+function updateScores2048(){
+  document.getElementById('score2048').textContent = g.score;
+  if (g.score > g.best) {
+    g.best = g.score;
+    localStorage.setItem('miaoyu_2048_best', String(g.best));
   }
-  function slide(row){
-    let v=row.filter(x=>x), out=[], gain=0;
-    for(let i=0;i<v.length;i++){
-      if(i+1<v.length && v[i]===v[i+1]){ out.push(v[i]*2); gain+=v[i]*2; i++; }
-      else out.push(v[i]);
-    }
-    while(out.length<N) out.push(0);
-    return [out, gain];
-  }
-  function move(dir){
-    if(over) return;
-    let rows, moved=false, total=0;
-    const back = (rs)=>{
-      if(dir==='left') return rs;
-      if(dir==='right') return rs.map(r=>r.slice().reverse());
-      if(dir==='up') return rs[0].map((_,c)=>rs.map(r=>r[c]));
-      return rs[0].map((_,c)=>rs.slice().reverse().map(r=>r[c]));
-    };
-    if(dir==='left') rows=grid.map(r=>r.slice());
-    if(dir==='right') rows=grid.map(r=>r.slice().reverse());
-    if(dir==='up') rows=grid[0].map((_,c)=>grid.map(r=>r[c]));
-    if(dir==='down') rows=grid[0].map((_,c)=>grid.slice().reverse().map(r=>r[c]));
-    const next=[];
-    for(const row of rows){ const [sl,g]=slide(row); next.push(sl); total+=g; if(sl.join()!==row.join()) moved=true; }
-    if(moved){ grid=back(next); score+=total; spawn(); }
-    if(isDead()){ over=true; toast('游戏结束！分数 '+score+'，按重开再来'); }
-    render();
-  }
-  function isDead(){
-    for(let r=0;r<N;r++)for(let c=0;c<N;c++){
-      if(!grid[r][c]) return false;
-      if(r+1<N&&grid[r][c]===grid[r+1][c]) return false;
-      if(c+1<N&&grid[r][c]===grid[r][c+1]) return false;
-    }
-    return true;
-  }
-  function render(){
-    document.getElementById('gscore').textContent = score;
-    board.innerHTML='';
-    for(let r=0;r<N;r++)for(let c=0;c<N;c++){
-      const d=document.createElement('div');
-      d.className='cell'+(grid[r][c]?' v'+grid[r][c]:'');
-      d.textContent=grid[r][c]||'';
-      board.appendChild(d);
+  document.getElementById('best2048').textContent = g.best;
+}
+function slideLine(line){
+  // 去零、合并、返回 {line, gain}
+  var arr = line.filter(function(v){ return v !== 0; });
+  var gain = 0;
+  for (var i = 0; i < arr.length - 1; i++) {
+    if (arr[i] === arr[i + 1]) {
+      arr[i] *= 2;
+      gain += arr[i];
+      arr.splice(i + 1, 1);
     }
   }
-  // 键盘
-  document.addEventListener('keydown', e=>{
-    const k={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',
-             w:'up',a:'left',s:'down',d:'right'}[e.key.toLowerCase()];
-    if(k){ e.preventDefault(); move(k); }
-  });
-  // 触屏滑动
-  let sx=0, sy=0;
-  board.addEventListener('touchstart', e=>{ const t=e.touches[0]; sx=t.clientX; sy=t.clientY; }, {passive:true});
-  board.addEventListener('touchend', e=>{
-    const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
-    if(Math.abs(dx)<20 && Math.abs(dy)<20) return;
-    if(Math.abs(dx)>Math.abs(dy)) move(dx>0?'right':'left');
-    else move(dy>0?'down':'up');
-  }, {passive:true});
-  newGame();
-  return { newGame };
-})();
+  while (arr.length < 4) arr.push(0);
+  return { line: arr, gain: gain };
+}
+function move2048(dir){
+  if (g.over) return;
+  var before = JSON.stringify(g.grid);
+  var gain = 0;
+  for (var i = 0; i < 4; i++) {
+    var line = [];
+    for (var j = 0; j < 4; j++) {
+      var r = dir === 0 ? i : (dir === 1 ? 3 - j : (dir === 2 ? 3 - i : j));
+      var c = dir === 0 ? j : (dir === 1 ? i : (dir === 2 ? i : 3 - j));
+      line.push(g.grid[r][c]);
+    }
+    var res = slideLine(line);
+    gain += res.gain;
+    for (var k = 0; k < 4; k++) {
+      var rr = dir === 0 ? i : (dir === 1 ? 3 - k : (dir === 2 ? 3 - i : k));
+      var cc = dir === 0 ? k : (dir === 1 ? i : (dir === 2 ? i : 3 - k));
+      g.grid[rr][cc] = res.line[k];
+    }
+  }
+  if (JSON.stringify(g.grid) !== before) {
+    g.score += gain;
+    spawn2048();
+    render2048();
+    updateScores2048();
+    if (isGameOver2048()) {
+      g.over = true;
+      document.getElementById('gameOverMsg').style.display = 'flex';
+      document.getElementById('gameOverText').textContent = has2048() ? '🎉 2048 达成！' : '游戏结束';
+    }
+  }
+}
+function has2048(){
+  for (var r = 0; r < 4; r++)
+    for (var c = 0; c < 4; c++)
+      if (g.grid[r][c] >= 2048) return true;
+  return false;
+}
+function isGameOver2048(){
+  for (var r = 0; r < 4; r++)
+    for (var c = 0; c < 4; c++) {
+      if (g.grid[r][c] === 0) return false;
+      if (c < 3 && g.grid[r][c] === g.grid[r][c + 1]) return false;
+      if (r < 3 && g.grid[r][c] === g.grid[r + 1][c]) return false;
+    }
+  return true;
+}
+function render2048(){
+  var board = document.getElementById('board');
+  board.innerHTML = '';
+  for (var r = 0; r < 4; r++)
+    for (var c = 0; c < 4; c++) {
+      var cell = document.createElement('div');
+      var v = g.grid[r][c];
+      cell.className = 'cell ' + (v === 0 ? 'cell-empty' : 'cell-' + v);
+      if (v) cell.textContent = v;
+      if (v >= 128) cell.style.fontSize = '22px';
+      if (v >= 1024) cell.style.fontSize = '18px';
+      board.appendChild(cell);
+    }
+}
+// 键盘
+document.addEventListener('keydown', function(e){
+  var p = document.getElementById('p-game');
+  if (!p.classList.contains('active')) return;
+  var map = { ArrowUp: 1, ArrowDown: 0, ArrowLeft: 2, ArrowRight: 3,
+              w: 1, s: 0, a: 2, d: 3, W: 1, S: 0, A: 2, D: 3 };
+  if (map[e.key] !== undefined) {
+    e.preventDefault();
+    move2048(map[e.key]);
+  }
+});
+// 触屏滑动
+var touchX = null, touchY = null;
+var boardEl = document.getElementById('board');
+boardEl.addEventListener('touchstart', function(e){
+  touchX = e.touches[0].clientX;
+  touchY = e.touches[0].clientY;
+});
+boardEl.addEventListener('touchend', function(e){
+  if (touchX === null) return;
+  var dx = e.changedTouches[0].clientX - touchX;
+  var dy = e.changedTouches[0].clientY - touchY;
+  var adx = Math.abs(dx), ady = Math.abs(dy);
+  if (Math.max(adx, ady) < 24) return;
+  if (adx > ady) move2048(dx > 0 ? 3 : 2);
+  else move2048(dy > 0 ? 0 : 1);
+  touchX = touchY = null;
+});
 
-// init
-newQuote();
-renderTimer();
+// ===== 语录 =====
+var QUOTES = [
+  "努力不一定成功，但不努力一定很轻松。",
+  "今天不摸鱼，明天变咸鱼。",
+  "上班摸鱼一时爽，一直摸鱼一直爽。",
+  "我不是懒，我是在保存体力为下班做准备。",
+  "摸鱼是一种生活态度，是对工作的另一种尊重。",
+  "工作是为了生活，摸鱼是为了活着。",
+  "我的梦想是：上四休三，带薪摸鱼。",
+  "效率高的人，才有资格摸鱼。",
+  "摸鱼五分钟，充电两小时。",
+  "所谓上班，就是给摸鱼找一个体面的理由。",
+  "脑子：我想干活。 身体：不，你不想。",
+  "工资到位，四舍五入摸鱼等于带薪休假。",
+  "今天也是元气满满准备摸鱼的一天呢！",
+  "老板：你好像在摸鱼？ 我：我在思考人生。",
+  "摸鱼不可怕，可怕的是摸鱼的时候被老板看见。",
+  "不想当咸鱼的打工人，不是好干饭人。",
+  "摸鱼一时爽，一直摸鱼一直爽，工作？工作是什么？",
+  "时间就像海绵里的水，挤一挤，总能摸到鱼。",
+  "工作使我快乐，摸鱼使我更快乐。",
+  "所谓上班：人到了，心飘了，鱼摸了。"
+];
+function showQuote(){
+  var idx = Math.floor(Math.random() * QUOTES.length);
+  document.getElementById('quoteText').textContent = QUOTES[idx];
+}
+
+// ===== 初始化 =====
+pomoLoad();
+pomoSetMode('work');
+init2048();
+showQuote();
 </script>
 </body>
 </html>

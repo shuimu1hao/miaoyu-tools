@@ -1,6 +1,6 @@
-# miaoyu-tools — 喵语工具集
+# miaoyu-tools — 喵语工具集（摸鱼工具箱）
 
-网页版小工具集合（纯前端）。
+网页版摸鱼小工具集合（纯前端，无需服务端）：番茄钟、2048 小游戏、摸鱼语录。
 
 ## 环境声明（Environment）
 
@@ -11,11 +11,28 @@
 ## 运行
 
 ```bash
-cd miaoyu-tools
-./start.sh        # 起本地服务
+bash miaoyu.sh start [端口]   # 启动（默认 8380）并自动打开浏览器
+bash miaoyu.sh stop           # 关闭
+bash miaoyu.sh status         # 查看运行状态
+bash miaoyu.sh                # 显示帮助
 ```
 
-或直接打开 `index.html`。
+或直接打开 `index.html`（所有功能纯前端，无需服务端也能用）。
+
+## 功能
+
+- 🍅 番茄钟：专注倒计时，摸鱼也要讲效率
+- 🎮 2048：经典数字合并小游戏
+- 💬 语录：随机摸鱼语录，累了就歇会儿
+
+## 目录结构
+
+```
+miaoyu-tools/
+├── index.html    # 前端页面（全部工具）
+├── miaoyu.sh     # 启动 / 停止 / 状态控制脚本
+└── LICENSE       # MIT 协议
+```
 
 ## 协议
 

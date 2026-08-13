@@ -21,3 +21,7 @@ model.glb
 usage.json
 task_queue.jsonl
 *.zip
+
+# 摸鱼工具箱运行时
+.server.log
+.server.pid
